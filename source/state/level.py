@@ -796,6 +796,8 @@ class Level(tool.State):
 
             if mouse_click[1]:
                 self.removeMouseImagePlus()
+                clicked_cards_or_map = True
+                self.click_result[1].clicked = False
             elif mouse_click[0]:  # 鼠标左键
                 # if self.menubar.checkMenuBarClick(mouse_pos):
                 #     self.click_result[1].clicked = False

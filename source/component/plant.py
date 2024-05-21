@@ -232,7 +232,12 @@ class Plant(pg.sprite.Sprite):
     def __init__(self, x, y, name, health, bullet_group, scale=1):
         pg.sprite.Sprite.__init__(self)
 
-        self.equipment= None#装备 liuxch
+        self.attack_speed = 1.0  # 初始化攻速
+        self.attack_damage = 1.0  # 攻击力初始化
+        # 装备效果
+        self.equipment = None  # 装备 @auther liuxch
+        # self.special_affect = None  # 初始化装备特效
+        self.has_equipment_apply = -False  # 记录装备是否生效
         self.frames = []
         self.frame_index = 0
         self.loadImages(name, scale)
@@ -244,7 +249,7 @@ class Plant(pg.sprite.Sprite):
         self.rect.bottom = y
 
         self.name = name
-        self.health = health
+        self.health = health  # 血量初始化
         self.state = c.IDLE
         self.bullet_group = bullet_group
         self.animate_timer = 0
@@ -361,14 +366,10 @@ class Plant(pg.sprite.Sprite):
         :return:
         """
 
-        if equipment.index == 1:
-            print("装备红buff")
-            self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
-                                          c.BULLET_FIREBALL, c.BULLET_DAMAGE_FIREBALL_BODY, effect=None))
-            self.equipment = equipment  # 将装备绑定到植物
-            self.apply_equipment(equipment)
+        self.equipment = equipment  # 将装备绑定到植物
+        self.apply_equipment(equipment)
 
-    def apply_equipment(self, equipment,influence=None):
+    def apply_equipment(self, equipment, influence=None):
         """
         装备效益
         定义不同装备在攻速
@@ -380,13 +381,19 @@ class Plant(pg.sprite.Sprite):
         :param influence 影响类型 攻速attack_speed 攻击力        血量        防御        特效
         :return:
         """
-        if equipment.index == 1:
-            print("装备红buff")
-            self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
-                                         c.BULLET_FIREBALL, c.BULLET_DAMAGE_FIREBALL_BODY, effect=None))
-        elif equipment.index==2:
-            pass
+        if equipment.index == 2:
+            self.attack_speed += 0.01  # 每次攻击加1%攻速
+        if not self.has_equipment_apply:  # 下面的效果只生效一次
+            self.has_equipment_apply = True
+            if equipment.index == 1:
+                self.bullet_type = c.BULLET_FIREBALL
+                self.bullet_damage = c.BULLET_DAMAGE_FIREBALL_BODY
+                self.attack_speed += 0.5
+            elif equipment.index == 2:
+                self.attack_speed += 0.15
         # ....
+        # 設置攻速上限
+        self.attack_speed = max(self.attack_speed, 5.0)
 
 
 class Sun(Plant):
@@ -448,16 +455,18 @@ class PeaShooter(Plant):
     def __init__(self, x, y, bullet_group):
         Plant.__init__(self, x, y, c.PEASHOOTER, c.PLANT_HEALTH, bullet_group)
         self.shoot_timer = 0
+        self.bullet_type = c.BULLET_PEA
+        self.bullet_damage = c.BULLET_DAMAGE_NORMAL
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(equipment=self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer) >= 1400:
-            if self.equipment is not None:
-                self.apply_equipment(equipment=self.equipment,influence="texiao")
-            else:
-                self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
-                                             c.BULLET_PEA, c.BULLET_DAMAGE_NORMAL, effect=None))
+        elif (self.current_time - self.shoot_timer) >= 1400 / self.attack_speed:
+            self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
+                                         self.bullet_type, self.bullet_damage, effect=None))
+
             self.shoot_timer = self.current_time
             # 播放发射音效
             c.SOUND_SHOOT.play()
@@ -472,24 +481,27 @@ class RepeaterPea(Plant):
     def __init__(self, x, y, bullet_group):
         Plant.__init__(self, x, y, c.REPEATERPEA, c.PLANT_HEALTH, bullet_group)
         self.shoot_timer = 0
-
+        self.bullet_type = c.BULLET_PEA
+        self.bullet_damage = c.BULLET_DAMAGE_NORMAL
         # 是否发射第一颗
         self.first_shot = False
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer >= 1400):
+        elif (self.current_time - self.shoot_timer >= 1400 / self.attack_speed):
             self.first_shot = True
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
-                                         c.BULLET_PEA, c.BULLET_DAMAGE_NORMAL, effect=None))
+                                         self.bullet_type, self.bullet_damage, effect=None))
             self.shoot_timer = self.current_time
             # 播放发射音效
             c.SOUND_SHOOT.play()
         elif self.first_shot and (self.current_time - self.shoot_timer) > 100:
             self.first_shot = False
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
-                                         c.BULLET_PEA, c.BULLET_DAMAGE_NORMAL, effect=None))
+                                         self.bullet_type, self.bullet_damage, effect=None))
             # 播放发射音效
             c.SOUND_SHOOT.play()
 
@@ -506,11 +518,15 @@ class ThreePeaShooter(Plant):
         self.map_y = map_y
         self.bullet_groups = bullet_groups
         self.background_type = background_type
+        self.bullet_type = c.BULLET_PEA
+        self.bullet_damage = c.BULLET_DAMAGE_NORMAL
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
-        if (self.current_time - self.shoot_timer) >= 1400:
+        if (self.current_time - self.shoot_timer) >= 1400 / self.attack_speed:
             offset_y = 9  # modify bullet in the same y position with bullets of other plants
             for i in range(3):
                 tmp_y = self.map_y + (i - 1)
@@ -526,7 +542,7 @@ class ThreePeaShooter(Plant):
                 else:
                     dest_y = self.rect.y + (i - 1) * c.GRID_Y_SIZE + offset_y
                 self.bullet_groups[tmp_y].add(Bullet(self.rect.right - 15, self.rect.y, dest_y,
-                                                     c.BULLET_PEA, c.BULLET_DAMAGE_NORMAL, effect=None))
+                                                     self.bullet_type, self.bullet_damage, effect=None))
             self.shoot_timer = self.current_time
             # 播放发射音效
             c.SOUND_SHOOT.play()
@@ -739,6 +755,8 @@ class PuffShroom(Plant):
         self.frames = self.idle_frames
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
