@@ -236,6 +236,7 @@ class Plant(pg.sprite.Sprite):
         self.attack_damage = 1.0  # 攻击力初始化
         # 装备效果
         self.equipment = None  # 装备 @auther liuxch
+        self.equipment_image = None  # 初始化装备图像
         # self.special_affect = None  # 初始化装备特效
         self.has_equipment_apply = -False  # 记录装备是否生效
         self.frames = []
@@ -328,6 +329,9 @@ class Plant(pg.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
+        if self.equipment_image:
+            self.image.blit(self.equipment_image, (0, 0))  # 在植物图像上绘制装备图像
+
     def canAttack(self, zombie):
         if (zombie.name == c.SNORKELZOMBIE) and (zombie.frames == zombie.swim_frames):
             return False
@@ -367,6 +371,11 @@ class Plant(pg.sprite.Sprite):
         """
 
         self.equipment = equipment  # 将装备绑定到植物
+        scale_factor_w = 5/10
+        scale_factor_h = 5/14
+        width = int(equipment.image.get_width() * scale_factor_w)
+        height = int(equipment.image.get_height() * scale_factor_h)
+        self.equipment_image = pg.transform.scale(equipment.image, (width, height))  # 调整装备图像大小
         self.apply_equipment(equipment)
 
     def apply_equipment(self, equipment, influence=None):
@@ -382,7 +391,7 @@ class Plant(pg.sprite.Sprite):
         :return:
         """
         if equipment.index == 2:
-            self.attack_speed += 0.01  # 每次攻击加1%攻速
+            self.attack_speed += 0.05  # 每次攻击加1%攻速
         if not self.has_equipment_apply:  # 下面的效果只生效一次
             self.has_equipment_apply = True
             if equipment.index == 1:
@@ -393,7 +402,7 @@ class Plant(pg.sprite.Sprite):
                 self.attack_speed += 0.15
         # ....
         # 設置攻速上限
-        self.attack_speed = max(self.attack_speed, 5.0)
+        self.attack_speed = min(self.attack_speed, 10.0)
 
 
 class Sun(Plant):
