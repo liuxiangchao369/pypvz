@@ -249,11 +249,15 @@ PLANT_CARD_INFO = (  # 元组 (植物名称, 卡片名称, 阳光, 冷却时间)
      7500),
     (HONGBUFF := "Hongbuff",
      CARD_HONGBUFF := "card_hongbuff",
-     0,
+     100,
      7500),
     (YANGDAO := "Yangdao",
      CARD_YANGDAO := "card_yangdao",
-     0,
+     100,
+     7500),
+    (KUANGTU := "Kuangtu",
+     CARD_KUANGTU := "card_kuangtu",
+     50,
      7500),
     (SUNFLOWER := "SunFlower",
      CARD_SUNFLOWER := "card_sunflower",
@@ -537,27 +541,27 @@ ZOMBIE_WALLNUT_BOWLING_DANMAGE = "wallnutBowlingDamage"  # 坚果保龄球冲撞
 
 # 僵尸生命值设置
 # 有关本体
-NORMAL_HEALTH = 200  # 普通僵尸生命值
-POLE_VAULTING_HEALTH = 333
-ZOMBONI_HEALTH = 1280
+NORMAL_HEALTH = 500  # 普通僵尸生命值
+POLE_VAULTING_HEALTH = 100
+ZOMBONI_HEALTH = 4000
 # 冰车损坏点
 ZOMBONI_DAMAGED1_HEALTH = 2 * ZOMBONI_HEALTH // 3 + 70
 ZOMBONI_DAMAGED2_HEALTH = ZOMBONI_HEALTH // 3 + 70
 # 掉头后僵尸的生命值
-LOSTHEAD_HEALTH = 70
-POLE_VAULTING_LOSTHEAD_HEALTH = 167
+LOSTHEAD_HEALTH = 400
+POLE_VAULTING_LOSTHEAD_HEALTH = 667
 # 有关一类防具
-CONEHEAD_HEALTH = 370
-BUCKETHEAD_HEALTH = 1100
-FOOTBALL_HELMET_HEALTH = 1400
+CONEHEAD_HEALTH = 800
+BUCKETHEAD_HEALTH = 2400
+FOOTBALL_HELMET_HEALTH = 4000
 # 有关二类防具
-NEWSPAPER_HEALTH = 150
-SCREEN_DOOR_HEALTH = 1100
+NEWSPAPER_HEALTH = 450
+SCREEN_DOOR_HEALTH = 2500
 
 # 僵尸行动信息
-ATTACK_INTERVAL = 500
-ZOMBIE_ATTACK_DAMAGE = 50
-ZOMBIE_WALK_INTERVAL = 60  # 僵尸步行间隔
+ATTACK_INTERVAL = 400
+ZOMBIE_ATTACK_DAMAGE = 60
+ZOMBIE_WALK_INTERVAL = 80  # 僵尸步行间隔
 
 # 僵尸生成位置
 ZOMBIE_START_X = SCREEN_WIDTH + 30  # 场宽度不一样，用于拟合
@@ -614,6 +618,7 @@ PLAY = "play"
 EQUIPMENT_RECT = {
     HONGBUFF: {"x": -50, "y": -50, "width": 100, "height": 100},
     YANGDAO: {"x": -50, "y": -50, "width": 100, "height": 100},
+    KUANGTU: {"x": -50, "y": -50, "width": 100, "height": 100},
 }  # liuxch
 
 # 植物

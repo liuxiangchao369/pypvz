@@ -371,8 +371,8 @@ class Plant(pg.sprite.Sprite):
         """
 
         self.equipment = equipment  # 将装备绑定到植物
-        scale_factor_w = 5/10
-        scale_factor_h = 5/14
+        scale_factor_w = 5 / 10
+        scale_factor_h = 5 / 14
         width = int(equipment.image.get_width() * scale_factor_w)
         height = int(equipment.image.get_height() * scale_factor_h)
         self.equipment_image = pg.transform.scale(equipment.image, (width, height))  # 调整装备图像大小
@@ -400,6 +400,8 @@ class Plant(pg.sprite.Sprite):
                 self.attack_speed += 0.5
             elif equipment.index == 2:
                 self.attack_speed += 0.15
+            elif equipment.index == 3:
+                self.health *= 1.8
         # ....
         # 設置攻速上限
         self.attack_speed = min(self.attack_speed, 10.0)
@@ -568,9 +570,11 @@ class SnowPeaShooter(Plant):
         self.shoot_timer = 0
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer) >= 1400:
+        elif (self.current_time - self.shoot_timer) >= 1400/self.attack_speed:
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
                                          c.BULLET_PEA_ICE, c.BULLET_DAMAGE_NORMAL, effect=c.BULLET_EFFECT_ICE))
             self.shoot_timer = self.current_time
@@ -719,6 +723,8 @@ class Chomper(Plant):
         self.changeFrames(self.digest_frames)
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.frame_index == (self.frame_num - 3):
             # 对活着的僵尸才需要吞下去消化
             if self.attack_zombie.alive():
@@ -836,6 +842,8 @@ class PotatoMine(Plant):
         return False
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.bomb_timer == 0:
             self.bomb_timer = self.current_time
             # 播放音效
@@ -891,6 +899,8 @@ class Squash(Plant):
         self.health = c.INF
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.start_boom:
             if (self.frame_index + 1) == self.frame_num:
                 for zombie in self.zombie_group:
@@ -944,6 +954,8 @@ class Spikeweed(Plant):
             self.hit_timer = self.current_time - 500
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.hit_timer == 0:
             self.hit_timer = self.current_time - 500
         elif (self.current_time - self.attack_timer) >= 700:
@@ -1062,6 +1074,8 @@ class ScaredyShroom(Plant):
         self.changeFrames(self.idle_frames)
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1327,6 +1341,8 @@ class RedWallNutBowling(Plant):
             self.move_timer += self.move_interval
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.explode_timer == 0:
             self.start_boom = True
             self.explode_timer = self.current_time
@@ -1416,6 +1432,8 @@ class StarFruit(Plant):
         return False
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1508,6 +1526,8 @@ class SeaShroom(Plant):
         self.frames = self.idle_frames
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1593,6 +1613,8 @@ class TangleKlep(Plant):
         self.state = c.ATTACK
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if not self.splashing:
             self.splashing = True
             self.changeFrames(self.splash_frames)
@@ -1827,6 +1849,8 @@ class FumeShroom(Plant):
             self.shoot_timer = self.current_time - 700
 
     def attacking(self):
+        if self.equipment is not None:
+            self.apply_equipment(self.equipment)
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif self.current_time - self.shoot_timer >= 1100:
