@@ -293,6 +293,9 @@ pyinstaller -F pypvz.py `
 * 增加关卡前的本关僵尸预览
 * 鼠标移动到植物上时显示部分信息，类似图鉴功能
 
+* 增加装备
+  
+
 ## 截屏
 
 ![截屏1](/screenshots/screenshot-1.webp)
