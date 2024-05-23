@@ -235,10 +235,10 @@ class Plant(pg.sprite.Sprite):
         self.attack_speed = 1.0  # 初始化攻速
         self.attack_damage = 1.0  # 攻击力初始化
         # 装备效果
-        self.equipment = None  # 装备 @auther liuxch
-        self.equipment_image = None  # 初始化装备图像
+        self.equipment = []  # 装备 @auther liuxch
+        self.equipment_image = []  # 初始化装备图像
         # self.special_affect = None  # 初始化装备特效
-        self.has_equipment_apply = -False  # 记录装备是否生效
+        # self.has_equipment_apply = -False  # 记录装备是否生效
         self.frames = []
         self.frame_index = 0
         self.loadImages(name, scale)
@@ -329,8 +329,8 @@ class Plant(pg.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-        if self.equipment_image:
-            self.image.blit(self.equipment_image, (0, 0))  # 在植物图像上绘制装备图像
+        for i, equipment_image in enumerate(self.equipment_image):
+            self.image.blit(equipment_image, (25 * i, 0))  # 在植物图像上绘制装备图像
 
     def canAttack(self, zombie):
         if (zombie.name == c.SNORKELZOMBIE) and (zombie.frames == zombie.swim_frames):
@@ -369,13 +369,15 @@ class Plant(pg.sprite.Sprite):
         :param equipment: 装备对象
         :return:
         """
+        if len(self.equipment) >= 3:
+            return
 
-        self.equipment = equipment  # 将装备绑定到植物
         scale_factor_w = 5 / 10
         scale_factor_h = 5 / 14
         width = int(equipment.image.get_width() * scale_factor_w)
         height = int(equipment.image.get_height() * scale_factor_h)
-        self.equipment_image = pg.transform.scale(equipment.image, (width, height))  # 调整装备图像大小
+        self.equipment_image.append(pg.transform.scale(equipment.image, (width, height)))  # 调整装备图像大小
+        self.equipment.append(equipment)  # 将装备绑定到植物
         self.apply_equipment(equipment)
 
     def apply_equipment(self, equipment, influence=None):
@@ -390,21 +392,17 @@ class Plant(pg.sprite.Sprite):
         :param influence 影响类型 攻速attack_speed 攻击力        血量        防御        特效
         :return:
         """
-        if equipment.index == 2:
-            self.attack_speed += 0.05  # 每次攻击加1%攻速
-        if not self.has_equipment_apply:  # 下面的效果只生效一次
-            self.has_equipment_apply = True
-            if equipment.index == 1:
-                self.bullet_type = c.BULLET_FIREBALL
-                self.bullet_damage = c.BULLET_DAMAGE_FIREBALL_BODY
-                self.attack_speed += 0.5
-            elif equipment.index == 2:
-                self.attack_speed += 0.15
-            elif equipment.index == 3:
-                self.health *= 1.8
+        if equipment.index == 1:
+            self.bullet_type = c.BULLET_FIREBALL
+            self.bullet_damage = c.BULLET_DAMAGE_FIREBALL_BODY
+            self.attack_speed += 0.5
+        elif equipment.index == 2:
+            self.attack_speed += 0.15
+        elif equipment.index == 3:
+            self.health *= 1.8
         # ....
         # 設置攻速上限
-        self.attack_speed = min(self.attack_speed, 10.0)
+        self.attack_speed = min(self.attack_speed, 5.0)
 
 
 class Sun(Plant):
@@ -468,13 +466,18 @@ class PeaShooter(Plant):
         self.shoot_timer = 0
         self.bullet_type = c.BULLET_PEA
         self.bullet_damage = c.BULLET_DAMAGE_NORMAL
+        self.attack_speed = 0.75
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(equipment=self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
+
         if self.shoot_timer == 0:
-            self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer) >= 1400 / self.attack_speed:
+            self.shoot_timer = self.current_time - 500
+        elif (self.current_time - self.shoot_timer) >= 1000 / self.attack_speed:
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
                                          self.bullet_type, self.bullet_damage, effect=None))
 
@@ -485,7 +488,7 @@ class PeaShooter(Plant):
     def setAttack(self):
         self.state = c.ATTACK
         if self.shoot_timer != 0:
-            self.shoot_timer = self.current_time - 700
+            self.shoot_timer = self.current_time - 500
 
 
 class RepeaterPea(Plant):
@@ -496,13 +499,17 @@ class RepeaterPea(Plant):
         self.bullet_damage = c.BULLET_DAMAGE_NORMAL
         # 是否发射第一颗
         self.first_shot = False
+        self.attack_speed=0.75
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
-            self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer >= 1400 / self.attack_speed):
+            self.shoot_timer = self.current_time - 500
+        elif (self.current_time - self.shoot_timer >= 1000 / self.attack_speed):
             self.first_shot = True
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
                                          self.bullet_type, self.bullet_damage, effect=None))
@@ -519,7 +526,7 @@ class RepeaterPea(Plant):
     def setAttack(self):
         self.state = c.ATTACK
         if self.shoot_timer != 0:
-            self.shoot_timer = self.current_time - 700
+            self.shoot_timer = self.current_time - 500
 
 
 class ThreePeaShooter(Plant):
@@ -532,12 +539,16 @@ class ThreePeaShooter(Plant):
         self.bullet_type = c.BULLET_PEA
         self.bullet_damage = c.BULLET_DAMAGE_NORMAL
 
+        self.attack_speed = 0.75
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
-            self.shoot_timer = self.current_time - 700
-        if (self.current_time - self.shoot_timer) >= 1400 / self.attack_speed:
+            self.shoot_timer = self.current_time - 500
+        if (self.current_time - self.shoot_timer) >= 1000 / self.attack_speed:
             offset_y = 9  # modify bullet in the same y position with bullets of other plants
             for i in range(3):
                 tmp_y = self.map_y + (i - 1)
@@ -561,20 +572,24 @@ class ThreePeaShooter(Plant):
     def setAttack(self):
         self.state = c.ATTACK
         if self.shoot_timer != 0:
-            self.shoot_timer = self.current_time - 700
+            self.shoot_timer = self.current_time - 500
 
 
 class SnowPeaShooter(Plant):
     def __init__(self, x, y, bullet_group):
         Plant.__init__(self, x, y, c.SNOWPEASHOOTER, c.PLANT_HEALTH, bullet_group)
         self.shoot_timer = 0
+        self.attack_speed=0.75
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
-            self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer) >= 1400/self.attack_speed:
+            self.shoot_timer = self.current_time - 500
+        elif (self.current_time - self.shoot_timer) >= 1000 / self.attack_speed:
             self.bullet_group.add(Bullet(self.rect.right - 15, self.rect.y, self.rect.y,
                                          c.BULLET_PEA_ICE, c.BULLET_DAMAGE_NORMAL, effect=c.BULLET_EFFECT_ICE))
             self.shoot_timer = self.current_time
@@ -586,7 +601,7 @@ class SnowPeaShooter(Plant):
     def setAttack(self):
         self.state = c.ATTACK
         if self.shoot_timer != 0:
-            self.shoot_timer = self.current_time - 700
+            self.shoot_timer = self.current_time - 500
 
 
 class WallNut(Plant):
@@ -723,8 +738,11 @@ class Chomper(Plant):
         self.changeFrames(self.digest_frames)
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.frame_index == (self.frame_num - 3):
             # 对活着的僵尸才需要吞下去消化
             if self.attack_zombie.alive():
@@ -753,6 +771,7 @@ class PuffShroom(Plant):
     def __init__(self, x, y, bullet_group):
         Plant.__init__(self, x, y, c.PUFFSHROOM, c.PLANT_HEALTH, bullet_group)
         self.shoot_timer = 0
+        self.attack_speed=1.0
 
     def loadImages(self, name, scale):
         self.idle_frames = []
@@ -770,11 +789,14 @@ class PuffShroom(Plant):
         self.frames = self.idle_frames
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
-            self.shoot_timer = self.current_time - 700
-        elif (self.current_time - self.shoot_timer) >= 1400:
+            self.shoot_timer = self.current_time - 500
+        elif (self.current_time - self.shoot_timer) >= 1000:
             self.bullet_group.add(Bullet(self.rect.right, self.rect.y + 10, self.rect.y + 10,
                                          c.BULLET_MUSHROOM, c.BULLET_DAMAGE_NORMAL, effect=None))
             self.shoot_timer = self.current_time
@@ -793,7 +815,7 @@ class PuffShroom(Plant):
     def setAttack(self):
         self.state = c.ATTACK
         if self.shoot_timer != 0:
-            self.shoot_timer = self.current_time - 700
+            self.shoot_timer = self.current_time - 500
 
 
 class PotatoMine(Plant):
@@ -842,8 +864,11 @@ class PotatoMine(Plant):
         return False
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.bomb_timer == 0:
             self.bomb_timer = self.current_time
             # 播放音效
@@ -899,8 +924,11 @@ class Squash(Plant):
         self.health = c.INF
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.start_boom:
             if (self.frame_index + 1) == self.frame_num:
                 for zombie in self.zombie_group:
@@ -954,8 +982,11 @@ class Spikeweed(Plant):
             self.hit_timer = self.current_time - 500
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.hit_timer == 0:
             self.hit_timer = self.current_time - 500
         elif (self.current_time - self.attack_timer) >= 700:
@@ -1074,8 +1105,11 @@ class ScaredyShroom(Plant):
         self.changeFrames(self.idle_frames)
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1341,8 +1375,11 @@ class RedWallNutBowling(Plant):
             self.move_timer += self.move_interval
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.explode_timer == 0:
             self.start_boom = True
             self.explode_timer = self.current_time
@@ -1432,8 +1469,11 @@ class StarFruit(Plant):
         return False
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1526,8 +1566,11 @@ class SeaShroom(Plant):
         self.frames = self.idle_frames
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif (self.current_time - self.shoot_timer) >= 1400:
@@ -1613,8 +1656,11 @@ class TangleKlep(Plant):
         self.state = c.ATTACK
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if not self.splashing:
             self.splashing = True
             self.changeFrames(self.splash_frames)
@@ -1849,8 +1895,11 @@ class FumeShroom(Plant):
             self.shoot_timer = self.current_time - 700
 
     def attacking(self):
-        if self.equipment is not None:
-            self.apply_equipment(self.equipment)
+        for equipment in self.equipment:
+            if equipment.index == 2:  # 羊刀
+                self.attack_speed += 0.05
+                self.attack_speed = min(self.attack_speed, 5.0)
+
         if self.shoot_timer == 0:
             self.shoot_timer = self.current_time - 700
         elif self.current_time - self.shoot_timer >= 1100:

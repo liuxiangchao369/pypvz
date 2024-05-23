@@ -107,7 +107,6 @@ class Zombie(pg.sprite.Sprite):
 
         if self.checkToDie(self.losthead_walk_frames):
             return
-        self.health += 0.1
         # 能游泳的僵尸
         if self.can_swim:
             # 在水池范围内
@@ -236,7 +235,6 @@ class Zombie(pg.sprite.Sprite):
                 self.target_y_change = 0
 
     def attacking(self):
-        self.health += 50
         if self.checkToDie(self.losthead_attack_frames):
             return
 
@@ -285,6 +283,7 @@ class Zombie(pg.sprite.Sprite):
             self.ice_slow_ratio = 2
 
     def setLostHead(self):
+        self.health+=1000
         self.losthead_timer = self.current_time
         self.losthead = True
         self.animate_interval = self.losthead_animate_interval

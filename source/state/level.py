@@ -708,6 +708,11 @@ class Level(tool.State):
 
         """
         plant.equip(equipment)
+        self.click_result[1].clicked = False
+
+        if self.hint_image is None:
+            self.setupHintImage()
+
 
     def play(self, mouse_pos, mouse_click):
         # 如果暂停
@@ -798,6 +803,7 @@ class Level(tool.State):
                 self.removeMouseImagePlus()
                 clicked_cards_or_map = True
                 self.click_result[1].clicked = False
+                self.drag_equipment=False
             elif mouse_click[0]:  # 鼠标左键
                 # if self.menubar.checkMenuBarClick(mouse_pos):
                 #     self.click_result[1].clicked = False

@@ -329,3 +329,6 @@ pyinstaller -F pypvz.py `
 Windows单文件封装版本无法通过终端显示日志，需要在日志文件中寻找崩溃原因
 * Windows默认日志文件路径为`~\AppData\Roaming\pypvz\run.log`
 * 其他操作系统为`~/.config/pypvz/run.log`，但一般可以在终端中显示时用终端中的输出即可
+
+
+pyinstaller --onefile --add-data "source;source" --add-data "resources;resources" pypvz.py
