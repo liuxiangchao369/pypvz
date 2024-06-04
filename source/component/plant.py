@@ -393,12 +393,15 @@ class Plant(pg.sprite.Sprite):
         :return:
         """
         if equipment.name == "Hongbuff":
+            print("装备红buff")
             self.bullet_type = c.BULLET_FIREBALL
             self.bullet_damage = c.BULLET_DAMAGE_FIREBALL_BODY
             self.attack_speed += 0.5
         elif equipment.name == "Yangdao":
+            print("装备羊刀")
             self.attack_speed += 0.15
         elif equipment.name == "Kuangtu":
+            print("装备狂徒")
             self.health *= 1.8
         # ....
         # 設置攻速上限
@@ -470,7 +473,7 @@ class PeaShooter(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -503,7 +506,7 @@ class RepeaterPea(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -542,7 +545,7 @@ class ThreePeaShooter(Plant):
         self.attack_speed = 0.75
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -583,7 +586,7 @@ class SnowPeaShooter(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -739,7 +742,7 @@ class Chomper(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -790,7 +793,7 @@ class PuffShroom(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -865,7 +868,7 @@ class PotatoMine(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -925,7 +928,7 @@ class Squash(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -983,7 +986,7 @@ class Spikeweed(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1106,7 +1109,7 @@ class ScaredyShroom(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1376,7 +1379,7 @@ class RedWallNutBowling(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1470,7 +1473,7 @@ class StarFruit(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1567,7 +1570,7 @@ class SeaShroom(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1657,7 +1660,7 @@ class TangleKlep(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 
@@ -1896,7 +1899,7 @@ class FumeShroom(Plant):
 
     def attacking(self):
         for equipment in self.equipment:
-            if equipment.index == 2:  # 羊刀
+            if equipment.name== "Yangdao":  # 羊刀
                 self.attack_speed += 0.05
                 self.attack_speed = min(self.attack_speed, 5.0)
 

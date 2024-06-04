@@ -15,8 +15,6 @@ logger = logging.getLogger("main")
 class Level(tool.State):
     def __init__(self):
         tool.State.__init__(self)
-        self.mouse_image =  pg.Surface([1, 1])
-        self.mouse_rect = pg.Rect(0, 0, 0, 0)  # 初始化为一个空的矩形
 
     def startup(self, current_time, persist):
         self.game_info = persist
@@ -701,8 +699,10 @@ class Level(tool.State):
                 self.drag_equipment = not self.drag_equipment
                 self.removeMouseImagePlus()
                 self.select_equipment = None
-                last_equipment = self.equipment_group.sprites()[-1]  # 获取最后一个精灵
-                self.equipment_group.remove(last_equipment)  # 从组中删除最后一个精灵
+                for equip in self.equipment_group.sprites():
+                    if equip.name == self.equipment_name:
+                        self.equipment_group.remove(equip)
+                        break
                 return
 
     def equipPlant(self, plant, equipment):
@@ -713,12 +713,12 @@ class Level(tool.State):
         :return: nothing
 
         """
-        plant.equip(equipment)
+        if equipment is not None:
+            plant.equip(equipment)
         self.click_result[1].clicked = False
 
         if self.hint_image is None:
             self.setupHintImage()
-
 
     def play(self, mouse_pos, mouse_click):
         # 如果暂停
@@ -767,12 +767,13 @@ class Level(tool.State):
                 x, y = self.map.getMapGridPos(map_x, map_y)
                 self.sun_group.add(plant.Sun(x, 0, x, y))
                 self.fallen_sun += 1
-                self.generateEquipment(x, y)
+                if random.random() > 0.1:
 
+                    self.generateEquipment(25, y)
 
         # 检查有没有捡到阳光
         clicked_sun = False
-        clicked_equipment=False
+        # clicked_equipment=False
         clicked_cards_or_map = False
         if not self.drag_plant and not self.drag_shovel and mouse_pos and mouse_click[0]:
             for sun in self.sun_group:
@@ -781,14 +782,18 @@ class Level(tool.State):
                     clicked_sun = True
                     # 播放收集阳光的音效
                     c.SOUND_COLLECT_SUN.play()
+        if not self.drag_plant and not self.drag_equipment and not self.drag_shovel and mouse_pos and mouse_click[0]:
             for equipment in self.equipment_group:
                 if equipment.rect.collidepoint(mouse_pos):
-                    print("hello")
+                    # print("hello")
                     self.drag_equipment = True
-                    clicked_equipment = True
+                    self.equipment_name = equipment.name
+                    self.select_equipment = equipment
+                    # clicked_equipment = True
                     break
 
         # 拖动植物或者铲子
+
         if not self.drag_plant and mouse_pos and mouse_click[0] and not clicked_sun and not self.drag_equipment:
             self.click_result = self.menubar.checkCardClick(mouse_pos)
             if self.click_result:
@@ -814,12 +819,11 @@ class Level(tool.State):
             if mouse_click[1]:
                 self.removeMouseImagePlus()
         elif self.drag_equipment:  # 是否拖动装备liuxch
-
             if mouse_click[1]:
                 self.removeMouseImagePlus()
                 clicked_cards_or_map = True
                 self.click_result[1].clicked = False
-                self.drag_equipment=False
+                self.drag_equipment = False
             elif mouse_click[0]:  # 鼠标左键
                 # if self.menubar.checkMenuBarClick(mouse_pos):
                 #     self.click_result[1].clicked = False
@@ -1139,6 +1143,7 @@ class Level(tool.State):
     # 移除小铲子
     def removeMouseImagePlus(self):
         self.drag_shovel = False
+        self.drag_equipment=False
         self.shovel_rect.x = self.shovel_positon[0]
         self.shovel_rect.y = self.shovel_positon[1]
 
@@ -1724,9 +1729,12 @@ class Level(tool.State):
 
             if self.drag_plant:
                 self.drawMouseShow(surface)
-            if self.drag_equipment:
+            if self.drag_equipment and surface is not None:
+                # try:
+                #     self.drawMouseShow(surface)
+                # except Exception as e:
+                #     print(e)
                 self.drawMouseShow(surface)
-
             if self.has_shovel and self.drag_shovel:
                 self.drawMouseShowPlus(surface)
 
@@ -1740,16 +1748,21 @@ class Level(tool.State):
 
     def generateEquipment(self, x, y):
         # 这里你可以根据需要自定义装备的名称、效果、索引等信息
-        equipment_name = "Hongbuff"
-        equipment_index = 0
+        equipment_index = random.randint(0, 2)
+        equip_map = {
+            0: "Hongbuff",
+            1: "Yangdao",
+            2: "Kuangtu"
+        }
+        equipment_name = equip_map[equipment_index]
 
         # 创建装备实例
-        new_equipment = Equipment(equipment_name, equipment_index,)
+        new_equipment = Equipment(equipment_name, equipment_index, )
 
         # 设置装备的位置
         new_equipment.rect.center = (x, y)
-        colorkey=(255,0,0)
-        new_equipment.loadFrames(frames=new_equipment.frames,name=equipment_name,scale=1,color=colorkey,x=x,y=y)
+        colorkey = (255, 255, 0)
+        new_equipment.loadFrames(frames=new_equipment.frames, name=equipment_name, scale=1, color=colorkey, x=x, y=y)
         self.equipment_group.add(new_equipment)
 
         data = c.EQUIPMENT_RECT[equipment_name]
@@ -1757,11 +1770,3 @@ class Level(tool.State):
         frame_list = tool.GFX[equipment_name]
         self.mouse_image = tool.get_image(frame_list[0], x, y, width, height, colorkey, 1)
         self.mouse_rect = self.mouse_image.get_rect()
-        # self.drag_equipment = True
-        self.equipment_name = equipment_name
-        self.select_equipment=new_equipment
-
-
-
-
-
