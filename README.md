@@ -331,4 +331,4 @@ Windows单文件封装版本无法通过终端显示日志，需要在日志文�
 * 其他操作系统为`~/.config/pypvz/run.log`，但一般可以在终端中显示时用终端中的输出即可
 
 
-pyinstaller --onefile --add-data "source;source" --add-data "resources;resources" pypvz.py
+pyinstaller --onefile --add-data "source;source" --add-data "resources;resources" -w  pypvz.py
