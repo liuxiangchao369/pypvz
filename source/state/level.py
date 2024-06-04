@@ -7,6 +7,7 @@ import pygame as pg
 from .. import constants as c
 from .. import tool
 from ..component import map, plant, zombie, menubar
+from ..component.equipment import Equipment
 
 logger = logging.getLogger("main")
 
@@ -14,6 +15,8 @@ logger = logging.getLogger("main")
 class Level(tool.State):
     def __init__(self):
         tool.State.__init__(self)
+        self.mouse_image =  pg.Surface([1, 1])
+        self.mouse_rect = pg.Rect(0, 0, 0, 0)  # 初始化为一个空的矩形
 
     def startup(self, current_time, persist):
         self.game_info = persist
@@ -96,6 +99,7 @@ class Level(tool.State):
     def setupGroups(self):
         self.sun_group = pg.sprite.Group()
         self.head_group = pg.sprite.Group()
+        self.equipment_group = pg.sprite.Group()  # 添加装备组
 
         # 改用列表生成器直接生成内容，不再在这里使用for循环
         self.plant_groups = [pg.sprite.Group() for i in range(self.map_y_len)]
@@ -697,6 +701,8 @@ class Level(tool.State):
                 self.drag_equipment = not self.drag_equipment
                 self.removeMouseImagePlus()
                 self.select_equipment = None
+                last_equipment = self.equipment_group.sprites()[-1]  # 获取最后一个精灵
+                self.equipment_group.remove(last_equipment)  # 从组中删除最后一个精灵
                 return
 
     def equipPlant(self, plant, equipment):
@@ -750,6 +756,7 @@ class Level(tool.State):
 
         self.head_group.update(self.game_info)
         self.sun_group.update(self.game_info)
+        self.equipment_group.update(self.game_info)
 
         if self.produce_sun:
             # 原版阳光掉落机制：(已掉落阳光数*100 ms + 4250 ms) 与 9500 ms的最小值，再加 0 ~ 2750 ms 之间的一个数
@@ -760,9 +767,12 @@ class Level(tool.State):
                 x, y = self.map.getMapGridPos(map_x, map_y)
                 self.sun_group.add(plant.Sun(x, 0, x, y))
                 self.fallen_sun += 1
+                self.generateEquipment(x, y)
+
 
         # 检查有没有捡到阳光
         clicked_sun = False
+        clicked_equipment=False
         clicked_cards_or_map = False
         if not self.drag_plant and not self.drag_shovel and mouse_pos and mouse_click[0]:
             for sun in self.sun_group:
@@ -771,6 +781,12 @@ class Level(tool.State):
                     clicked_sun = True
                     # 播放收集阳光的音效
                     c.SOUND_COLLECT_SUN.play()
+            for equipment in self.equipment_group:
+                if equipment.rect.collidepoint(mouse_pos):
+                    print("hello")
+                    self.drag_equipment = True
+                    clicked_equipment = True
+                    break
 
         # 拖动植物或者铲子
         if not self.drag_plant and mouse_pos and mouse_click[0] and not clicked_sun and not self.drag_equipment:
@@ -810,7 +826,7 @@ class Level(tool.State):
                 #     self.removeMouseImage()
                 # else:
                 print("点击左键")
-                self.equipmentEquipPlant(mouse_pos)  # todo
+                self.equipmentEquipPlant(mouse_pos)
             elif mouse_pos is None:
                 self.setupHintImage()
             else:
@@ -1704,6 +1720,7 @@ class Level(tool.State):
                     self.cars[i].draw(surface)
             self.head_group.draw(surface)
             self.sun_group.draw(surface)
+            self.equipment_group.draw(surface)  # 绘制装备组
 
             if self.drag_plant:
                 self.drawMouseShow(surface)
@@ -1720,3 +1737,31 @@ class Level(tool.State):
                 self.showLevelProgress(surface)
                 if self.current_time - self.show_hugewave_approching_time <= 2000:
                     surface.blit(self.huge_wave_approching_image, self.huge_wave_approching_image_rect)
+
+    def generateEquipment(self, x, y):
+        # 这里你可以根据需要自定义装备的名称、效果、索引等信息
+        equipment_name = "Hongbuff"
+        equipment_index = 0
+
+        # 创建装备实例
+        new_equipment = Equipment(equipment_name, equipment_index,)
+
+        # 设置装备的位置
+        new_equipment.rect.center = (x, y)
+        colorkey=(255,0,0)
+        new_equipment.loadFrames(frames=new_equipment.frames,name=equipment_name,scale=1,color=colorkey,x=x,y=y)
+        self.equipment_group.add(new_equipment)
+
+        data = c.EQUIPMENT_RECT[equipment_name]
+        x, y, width, height = data["x"], data["y"], data["width"], data["height"]
+        frame_list = tool.GFX[equipment_name]
+        self.mouse_image = tool.get_image(frame_list[0], x, y, width, height, colorkey, 1)
+        self.mouse_rect = self.mouse_image.get_rect()
+        # self.drag_equipment = True
+        self.equipment_name = equipment_name
+        self.select_equipment=new_equipment
+
+
+
+
+

@@ -373,14 +373,14 @@ class Plant(pg.sprite.Sprite):
             return
 
         scale_factor_w = 5 / 10
-        scale_factor_h = 5 / 14
+        scale_factor_h = 5 / 10
         width = int(equipment.image.get_width() * scale_factor_w)
         height = int(equipment.image.get_height() * scale_factor_h)
         self.equipment_image.append(pg.transform.scale(equipment.image, (width, height)))  # 调整装备图像大小
         self.equipment.append(equipment)  # 将装备绑定到植物
         self.apply_equipment(equipment)
 
-    def apply_equipment(self, equipment, influence=None):
+    def apply_equipment(self, equipment, ):
         """
         装备效益
         定义不同装备在攻速
@@ -389,16 +389,16 @@ class Plant(pg.sprite.Sprite):
         防御
         特效上面的作用
         :param equipment: 装备对象
-        :param influence 影响类型 攻速attack_speed 攻击力        血量        防御        特效
+
         :return:
         """
-        if equipment.index == 1:
+        if equipment.name == "Hongbuff":
             self.bullet_type = c.BULLET_FIREBALL
             self.bullet_damage = c.BULLET_DAMAGE_FIREBALL_BODY
             self.attack_speed += 0.5
-        elif equipment.index == 2:
+        elif equipment.name == "Yangdao":
             self.attack_speed += 0.15
-        elif equipment.index == 3:
+        elif equipment.name == "Kuangtu":
             self.health *= 1.8
         # ....
         # 設置攻速上限

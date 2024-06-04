@@ -251,14 +251,14 @@ PLANT_CARD_INFO = (  # 元组 (植物名称, 卡片名称, 阳光, 冷却时间)
      CARD_HONGBUFF := "card_hongbuff",
      0,
      75000),
-    (YANGDAO := "Yangdao",
-     CARD_YANGDAO := "card_yangdao",
-     0,
-     75000),
-    (KUANGTU := "Kuangtu",
-     CARD_KUANGTU := "card_kuangtu",
-     0,
-     75000),
+    # (YANGDAO := "Yangdao",
+    #  CARD_YANGDAO := "card_yangdao",
+    #  0,
+    #  75000),
+    # (KUANGTU := "Kuangtu",
+    #  CARD_KUANGTU := "card_kuangtu",
+    #  0,
+    #  75000),
     (SUNFLOWER := "SunFlower",
      CARD_SUNFLOWER := "card_sunflower",
      50,
@@ -616,9 +616,9 @@ PLAY = "play"
 
 # 加载矩形碰撞范围 用于消除文件边框影响
 EQUIPMENT_RECT = {
-    HONGBUFF: {"x": -50, "y": -50, "width": 100, "height": 100},
-    YANGDAO: {"x": -50, "y": -50, "width": 100, "height": 100},
-    KUANGTU: {"x": -50, "y": -50, "width": 100, "height": 100},
+    HONGBUFF: {"x": -50, "y": -50, "width": 50, "height": 50},
+    # YANGDAO: {"x": -50, "y": -50, "width": 100, "height": 100},
+    # KUANGTU: {"x": -50, "y": -50, "width": 100, "height": 100},
 }  # liuxch
 
 # 植物
